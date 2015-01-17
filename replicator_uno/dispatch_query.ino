@@ -27,6 +27,8 @@ void dispatch_query (command_holder _com) {
       break;
     };
     case (0x07):{ // stop print
+      need_halt = true;
+      
       uint8_t _resp[] = {0x81};
       send_packet( _resp,1 );
       break;

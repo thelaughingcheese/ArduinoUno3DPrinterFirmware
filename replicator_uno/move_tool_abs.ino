@@ -54,6 +54,12 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
         if ((_delay_per_step % 1000) > 0){
           delayMicroseconds(_delay_per_step % 1000);
         };
+        
+        check_s_buffer();
+        
+        if(need_halt){
+          break;
+        };
       };
     }
     else{
@@ -86,6 +92,12 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
         delay((_delay_per_step - (_delay_per_step % 1000))/1000);
         if ((_delay_per_step % 1000) > 0){
           delayMicroseconds(_delay_per_step % 1000);
+        };
+        
+        check_s_buffer();
+        
+        if(need_halt){
+          break;
         };
       };
     };
@@ -134,6 +146,12 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
         if ((_delay_per_step % 1000) > 0){
           delayMicroseconds(_delay_per_step % 1000);
         };
+        
+        check_s_buffer();
+        
+        if(need_halt){
+          break;
+        };
       };
     }
     else{
@@ -166,6 +184,12 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
         delay((_delay_per_step - (_delay_per_step % 1000))/1000);
         if ((_delay_per_step % 1000) > 0){
           delayMicroseconds(_delay_per_step % 1000);
+        };
+        
+        check_s_buffer();
+        
+        if(need_halt){
+          break;
         };
       };
     };
@@ -214,6 +238,12 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
         if ((_delay_per_step % 1000) > 0){
           delayMicroseconds(_delay_per_step % 1000);
         };
+        
+        check_s_buffer();
+        
+        if(need_halt){
+          break;
+        };
       };
     }
     else{
@@ -247,8 +277,15 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
         if ((_delay_per_step % 1000) > 0){
           delayMicroseconds(_delay_per_step % 1000);
         };
+        
+        check_s_buffer();
+        
+        if(need_halt){
+          break;
+        };
       };
     };
   };
+  need_halt = false;
 };
 

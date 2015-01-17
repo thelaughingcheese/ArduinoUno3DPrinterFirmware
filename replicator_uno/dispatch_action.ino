@@ -42,6 +42,8 @@ void dispatch_action (command_holder _com) {
       break;
     };
     case (0x8C):{ //set current position to the one specified, 20 byte payload, 4 bytes each axes, 5 axes in steps
+      need_halt = false;
+      
       uint32_t _xpos = 0;
       uint32_t _ypos = 0;
       uint32_t _zpos = 0;
@@ -154,11 +156,11 @@ void dispatch_action (command_holder _com) {
       
       _motion_flags = _com.load[25];
       
+      uint8_t _resp[] = {0x81};
+      send_packet( _resp,1 );
       //cast and pass data to move tool head
       move_tool_abs((int32_t)_xpos, (int32_t)_ypos, (int32_t)_zpos, _del);
       
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
       break;
     };
     case(0x83):{  //Find axis Minimums, just retruns success

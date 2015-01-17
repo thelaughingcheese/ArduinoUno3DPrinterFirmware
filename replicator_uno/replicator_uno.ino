@@ -1,11 +1,13 @@
 /************************************************
-Version 0.2
+Version 0.3
 -communicates with replicatorg
 -only performs absolute positioning
--linear, must finish one instruction at a time, query commands are NOT prioritized
--no stop command implemented
+-no buffer yet
+-all query commands are instantly proccessed
+-queue extended point now instantly responds with success so that it does not clog up the serial buffer
+-if is performing a action, the machine responds with "buffer full"
+-now supports stop command
 ************************************************/
-
 
 /*-------------------
 main loop, setup and global variables
@@ -33,6 +35,10 @@ stepper_handle stepper_x(13,12);
 stepper_handle stepper_y(11,10);
 stepper_handle stepper_z(9,8);
 
+//statuses
+boolean is_busy = false;
+boolean need_halt = false;
+
 void setup(){
   //Serial.begin(115200);
   Serial.begin(460800);
@@ -48,42 +54,9 @@ void loop(){
   };*/
   
   //check serial buffer for commands, varify them, sort them, append them
-  while(Serial.available()){
-    if(Serial.read() == 0xD5){
-      while(!Serial.available()){ //wait for next byte to send
-      }
-      
-      uint8_t _size = Serial.read(); //find packet size in packet
-      uint8_t _payload[_size];
-      
-      for(int i = 0; i < _size; i++){ //read payload according to size
-        while(!Serial.available()){
-        }
-        _payload[i] = Serial.read();
-      };
-      
-      while(!Serial.available()){ //wait for next set of information
-      }
-      
-      if(crc8(_payload, _size) == Serial.read()){ //compare checksum to the current packet
-        if(_payload[0] < 128){ //handles query commands
-          //send_packet( ha,3 );
-          command_holder _temp(_payload,_size);
-          dispatch_query(_temp);
-        }
-        else{ //handles everything else: action commands
-          command_holder _temp(_payload,_size);
-          dispatch_action(_temp);
-        };
-      }
-      else{ //tell the computer it don't goofed
-        uint8_t _resp[] = {0x83};
-        send_packet( _resp,1 );
-      };
-      
-      //send_packet( ha,3 );
-    };
-  };
+  //while(Serial.available()){
+    check_s_buffer();
+  //};
   //buffer not implimented
   //check query_buffer for commands that need to be handled immidiately
   //printing and what not, main stuff
