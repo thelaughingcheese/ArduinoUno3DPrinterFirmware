@@ -1,12 +1,15 @@
 /*------------------
-blabla
+if there is a buffered command, start executing it
 ------------------*/
 
-/*
+
 void exe_actions(){
-  if(a_buff.used_elements > 0){
-    dispatch_action(a_buff.pop());
+  if(buffered_action != NULL){
+    spare = curAction;
+    curAction = buffered_action;
+    buffered_action = NULL;
+    dispatch_action(*curAction);
   };
 };
-*/
+
 

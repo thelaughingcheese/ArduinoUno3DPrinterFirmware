@@ -7,16 +7,12 @@ retains uint8 of number of N bytes
 
 class command_holder{
 public:
-  command_holder(uint8_t[],uint8_t);
+  command_holder();
 
-  uint8_t *load;
+  uint8_t load[32];
   uint8_t a_size;
 };
 
-command_holder::command_holder( uint8_t _arg[], uint8_t _size ){
-  load = _arg;
-  a_size = _size;
+command_holder::command_holder(){
+  a_size = 0;
 };
-
-
-

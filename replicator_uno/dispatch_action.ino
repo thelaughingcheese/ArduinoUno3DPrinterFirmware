@@ -5,14 +5,12 @@ reads and handles action commands
 void dispatch_action (command_holder _com) {
   switch(_com.load[0]){
     case (0x89):{ // power or unpower stepper axes, data ignored, returns success
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
       break;
     };
     case (0x88):{ // oh boy! switch inside a switch! tool action command, payload starts at index 4, command at 2
       switch(_com.load[2]){
         case (0x03):{ //set target temperature, payload is 16 bit uint of temperature, does nothing for now
-          uint8_t _resp[] = {0x81};
+    
           uint16_t _target = 0;
       
           for(int i = 0; i < 2;i++){    //read the 16 bit temperature
@@ -21,29 +19,19 @@ void dispatch_action (command_holder _com) {
           };
           
           extruder_temp_target = (int)_target;
-      
-          send_packet( _resp,1);
           break;
         };
         case (0x0A):{ //turn motor on/off, bottom 2 bits,bit 0 is on or off, bit 1 is direction
-          uint8_t _resp[] = {0x81};
-          send_packet( _resp,1 );
           break;
         };
         case (0x1F):{ //Set build platform temperature
-          uint8_t _resp[] = {0x81};
-          send_packet( _resp,1 );
           break;
         };
         case (0x04):{ //set PWM speed for motor
-          uint8_t _resp[] = {0x81};
-          send_packet( _resp,1 );
           break;
         };
         case (0x0C
         ):{ //toggle fan
-          uint8_t _resp[] = {0x81};
-          send_packet( _resp,1 );
           break;
         };
         
@@ -85,14 +73,11 @@ void dispatch_action (command_holder _com) {
       tool_y = (int32_t)_ypos;
       tool_z = (int32_t)_zpos;
       tool_a = (int32_t)_apos;
-      
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
+
       break;
     };
     case(0x86):{ //change tool, only 1 tool so just acknowledge command
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
+
       break;
     };
     case(0x87):{ //wait for tool ready, supposed to poll tool,no tool so just acknowledge command when tool ready/hot enough
@@ -100,8 +85,6 @@ void dispatch_action (command_holder _com) {
         delay(10);
       };
     
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
       break;
     };
     case(0x85):{ //delay, just sit there with your dick in your hand for that long
@@ -119,13 +102,10 @@ void dispatch_action (command_holder _com) {
           delayMicroseconds(_del % 1000);
       };
     
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
       break;
     };
     case(0x84):{ //find axes Maximums and record to eeprom
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
+
       break;
     };
     case(0x8E):{ //queue an absolute point for print head to move to, return success uppon task finish
@@ -136,10 +116,6 @@ void dispatch_action (command_holder _com) {
       uint32_t _bpos = 0;
       uint32_t _del = 0;
       uint8_t _motion_flags = 0;
-      
-      /*boolean _x_rel = false;
-      boolean _y_rel = false;
-      boolean _z_rel = false;*/
       
       for(int i = 0; i < 4;i++){    //convert from raw bytes to uint32 and cast to int32 later xyz
           uint32_t _tempz = _com.load[i + 1];
@@ -191,9 +167,6 @@ void dispatch_action (command_holder _com) {
         _apos = (uint32_t)((int32_t)_apos + tool_a);
       };
       
-      //respond to host software
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
       
       //cast and pass data to move tool head
       move_tool_abs((int32_t)_xpos, (int32_t)_ypos, (int32_t)_zpos,(int32_t)_apos, _del);
@@ -217,18 +190,14 @@ void dispatch_action (command_holder _com) {
           _timeout = _timeout + (_tempz << (8 * i));
       };
       
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
       break;
     };
     case(0x90):{  //Recall home position from eeprom, just retruns success, supposed to find coords in eeprom and make the current position that coordinate
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
+
       break;
     };
     case(0x8D):{  //wait for build platform ready, just returns success
-      uint8_t _resp[] = {0x81};
-      send_packet( _resp,1 );
+
       break;
     };
     default:{

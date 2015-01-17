@@ -1,5 +1,6 @@
 /*--------------------------
 performs updates for everything per tick
+mainly checks temperatures and new commands
 --------------------------*/
 
 void update_state(){

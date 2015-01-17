@@ -84,6 +84,11 @@ void dispatch_query (command_holder _com) {
           send_packet( _resp,3 );
           break;
         };
+        default:{
+          uint8_t _resp[] = {0x85};
+          send_packet( _resp,1 );
+          break;
+        };
       };
       break;
     };

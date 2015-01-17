@@ -1,13 +1,17 @@
 /*--------------------------
 holds info and controls stepping
+
+set type to true if is direct stepper driver aka diy driver
 --------------------------*/
 
 #include <Arduino.h>
+#include "digitalWriteFast.h"
 
 class stepper_handle{
 private:
   int stepper_pin_1;
   int stepper_pin_2;
+  boolean type;
 
   void set_state();
   /*----------------
@@ -19,47 +23,57 @@ private:
   int state;
   
 public:
-  stepper_handle(int,int);
+  stepper_handle(int,int,boolean);
   void make_step(boolean);
 };
 
-stepper_handle::stepper_handle( int _pin_1, int _pin_2){
+stepper_handle::stepper_handle( int _pin_1, int _pin_2, boolean type){
   stepper_pin_1 = _pin_1;
   stepper_pin_2 = _pin_2;
+  this->type = type;
   
   pinMode(_pin_1,OUTPUT);
   pinMode(_pin_2,OUTPUT);
   
-  state = 1;
-  set_state();
+  if(this->type){
+    state = 1;
+    set_state();
+  }
 };
 
 void stepper_handle::set_state(){
   switch(state){
     case(1):{
-      digitalWrite(stepper_pin_1,HIGH);
-      digitalWrite(stepper_pin_2,HIGH);
+      digitalWriteFast(stepper_pin_1,HIGH);
+      digitalWriteFast(stepper_pin_2,HIGH);
       break;
     };
     case(2):{
-      digitalWrite(stepper_pin_1,HIGH);
-      digitalWrite(stepper_pin_2,LOW);
+      digitalWriteFast(stepper_pin_1,HIGH);
+      digitalWriteFast(stepper_pin_2,LOW);
       break;
     };
     case(3):{
-      digitalWrite(stepper_pin_1,LOW);
-      digitalWrite(stepper_pin_2,LOW);
+      digitalWriteFast(stepper_pin_1,LOW);
+      digitalWriteFast(stepper_pin_2,LOW);
       break;
     };
     case(4):{
-      digitalWrite(stepper_pin_1,LOW);
-      digitalWrite(stepper_pin_2,HIGH);
+      digitalWriteFast(stepper_pin_1,LOW);
+      digitalWriteFast(stepper_pin_2,HIGH);
       break;
     };
   };
 };
 
 void stepper_handle::make_step( boolean _dir ){
+  if(!type){
+    digitalWriteFast(stepper_pin_1, _dir);
+    digitalWriteFast(stepper_pin_2, HIGH);
+    digitalWriteFast(stepper_pin_2, LOW);
+    return;
+  }
+  
   //1 for forward 0 for backward
   if (_dir){
     if (state == 4){
