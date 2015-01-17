@@ -5,10 +5,13 @@
  interpolation is done with basic  y=mx+b and z=nx+c
  ------------------------------*/
 
-void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
+void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, int32_t _a, uint32_t _del){
   int32_t _x_delt = _x - tool_x;
   int32_t _y_delt = _y - tool_y;
   int32_t _z_delt = _z - tool_z;
+  int32_t _a_delt = _a - tool_a;
+  
+  float actual_ratio = 0;
   
   if(abs(_x_delt) >= abs(_y_delt) && abs(_x_delt) >= abs(_z_delt)){        //linear interpolation for x as the max delta
     uint32_t _delay_per_step = _del/abs(_x_delt);
@@ -22,6 +25,11 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
     float _z_slope = (_z_delt)/(_x_delt);
     int32_t _z_b = _z - (_z_slope * _x);
     int32_t _new_z = 0;
+    
+    //mb data for a
+    float _a_slope = (_a_delt)/(_x_delt);
+    int32_t _a_b = _a - (_a_slope * _x);
+    int32_t _new_a = 0;
 
     if(_x_delt > 0){
       for(int32_t i = 0; i < _x_delt; i++){
@@ -50,12 +58,20 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
           tool_z--;
         };
         
-        delay((_delay_per_step - (_delay_per_step % 1000))/1000);
-        if ((_delay_per_step % 1000) > 0){
-          delayMicroseconds(_delay_per_step % 1000);
+        //move a axis
+        _new_a = (_a_slope * tool_x)  + _a_b;
+        if(_new_a > tool_a){
+          stepper_a.make_step(true);
+          tool_a++;
+        }
+        else if(_new_a < tool_a){
+          stepper_a.make_step(false);
+          tool_a--;
         };
         
-        check_s_buffer();
+        step_delay(abs(_x_delt), abs(tool_x - _x + _x_delt), _delay_per_step, actual_ratio);
+        
+        update_state();
         
         if(need_halt){
           break;
@@ -89,12 +105,20 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
           tool_z--;
         };
         
-        delay((_delay_per_step - (_delay_per_step % 1000))/1000);
-        if ((_delay_per_step % 1000) > 0){
-          delayMicroseconds(_delay_per_step % 1000);
+        //move a axis
+        _new_a = (_a_slope * tool_x)  + _a_b;
+        if(_new_a > tool_a){
+          stepper_a.make_step(true);
+          tool_a++;
+        }
+        else if(_new_a < tool_a){
+          stepper_a.make_step(false);
+          tool_a--;
         };
         
-        check_s_buffer();
+        step_delay(abs(_x_delt), abs(tool_x - _x + _x_delt), _delay_per_step, actual_ratio);
+        
+        update_state();
         
         if(need_halt){
           break;
@@ -114,6 +138,11 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
     float _z_slope = (_z_delt)/(_y_delt);
     int32_t _z_b = _z - (_z_slope * _y);
     int32_t _new_z = 0;
+
+    //mb data for a
+    float _a_slope = (_a_delt)/(_y_delt);
+    int32_t _a_b = _a - (_a_slope * _y);
+    int32_t _new_a = 0;
 
     if(_y_delt > 0){
       for(int32_t i = 0; i < _y_delt; i++){
@@ -142,12 +171,23 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
           tool_z--;
         };
         
-        delay((_delay_per_step - (_delay_per_step % 1000))/1000);
-        if ((_delay_per_step % 1000) > 0){
-          delayMicroseconds(_delay_per_step % 1000);
+        //move a axis
+        _new_a = (_a_slope * tool_y)  + _a_b;
+        if(_new_a > tool_a){
+          stepper_a.make_step(true);
+          tool_a++;
+        }
+        else if(_new_a < tool_a){
+          stepper_a.make_step(false);
+          tool_a--;
         };
         
-        check_s_buffer();
+        //int32_t _abs_cur_pos = tool_y - _y + _y_delt;
+        //step_delay(abs(_y_delt), abs(_abs_cur_pos), _delay_per_step);
+        
+        step_delay(abs(_y_delt), abs(tool_y - _y + _y_delt), _delay_per_step, actual_ratio);
+        
+        update_state();
         
         if(need_halt){
           break;
@@ -181,12 +221,20 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
           tool_z--;
         };
         
-        delay((_delay_per_step - (_delay_per_step % 1000))/1000);
-        if ((_delay_per_step % 1000) > 0){
-          delayMicroseconds(_delay_per_step % 1000);
+        //move a axis
+        _new_a = (_a_slope * tool_y)  + _a_b;
+        if(_new_a > tool_a){
+          stepper_a.make_step(true);
+          tool_a++;
+        }
+        else if(_new_a < tool_a){
+          stepper_a.make_step(false);
+          tool_a--;
         };
         
-        check_s_buffer();
+        step_delay(abs(_y_delt), abs(tool_y - _y + _y_delt), _delay_per_step, actual_ratio);
+        
+        update_state();
         
         if(need_halt){
           break;
@@ -204,8 +252,13 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
     
     //mbdata for y
     float _y_slope = (_y_delt)/(_z_delt);
-    int32_t _y_b = _x - (_x_slope * _z);
+    int32_t _y_b = _y - (_y_slope * _z);
     int32_t _new_y = 0;
+
+    //mbdata for a
+    float _a_slope = (_a_delt)/(_z_delt);
+    int32_t _a_b = _a - (_a_slope * _z);
+    int32_t _new_a = 0;
 
     if(_z_delt > 0){
       for(int32_t i = 0; i < _z_delt; i++){
@@ -234,12 +287,21 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
           tool_y--;
         };
         
-        delay((_delay_per_step - (_delay_per_step % 1000))/1000);
-        if ((_delay_per_step % 1000) > 0){
-          delayMicroseconds(_delay_per_step % 1000);
+        //move a axis
+        _new_a = (_a_slope * tool_z)  + _a_b;
+        if(_new_a > tool_a){
+          stepper_a.make_step(true);
+          tool_a++;
+        }
+        else if(_new_a < tool_a){
+          stepper_a.make_step(false);
+          tool_a--;
         };
         
-        check_s_buffer();
+        
+        step_delay(abs(_z_delt), abs(tool_z - _z + _z_delt), _delay_per_step, actual_ratio);
+        
+        update_state();
         
         if(need_halt){
           break;
@@ -273,12 +335,20 @@ void move_tool_abs(int32_t _x, int32_t _y, int32_t _z, uint32_t _del){
           tool_y--;
         };
         
-        delay((_delay_per_step - (_delay_per_step % 1000))/1000);
-        if ((_delay_per_step % 1000) > 0){
-          delayMicroseconds(_delay_per_step % 1000);
+        //move a axis
+        _new_a = (_a_slope * tool_z)  + _a_b;
+        if(_new_a > tool_a){
+          stepper_a.make_step(true);
+          tool_a++;
+        }
+        else if(_new_a < tool_a){
+          stepper_a.make_step(false);
+          tool_a--;
         };
         
-        check_s_buffer();
+        step_delay(abs(_z_delt), abs(tool_z - _z + _z_delt), _delay_per_step, actual_ratio);
+        
+        update_state();
         
         if(need_halt){
           break;

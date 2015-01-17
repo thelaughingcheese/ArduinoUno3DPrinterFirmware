@@ -1,12 +1,55 @@
 /************************************************
-Version 0.3
--communicates with replicatorg
--only performs absolute positioning
--no buffer yet
--all query commands are instantly proccessed
--queue extended point now instantly responds with success so that it does not clog up the serial buffer
--if is performing a action, the machine responds with "buffer full"
--now supports stop command
+Version 0.4
+-correctly responds to "is finished" command 11, 0x0B
+-fixed bug in abs positioning
+-supports bang-bang extruder heater control
+-supports packet timeout
+-eeprom how reads and writes properly
+-dispatch case statements now default to 0x85 command not recognized/supported
+-implemented 4th axis
+-actual ratio for motion acceleration now not static and is passed into step_delay, resets actual_ratio when interrupted
+
+EEPROM format:
+0-127 makerbot based config data
+  0-15
+    0  character x, unknown purpose
+    1  character y, unknown purpose
+    2-15  unknown purpose
+  16-31
+    16-23 8 byte/character ascii name
+    24-31 unknown purpose
+  32-47 unknown purpose
+  48-63 unknown purpose
+  64-79 unknown purpose
+  80-95 unknown purpose
+  96-111 unknown purpose
+  112-128 unknown purpose
+128-1023 blank data 0xFF
+
+pins:
+digital
+0 - serial
+1 - serial
+2 - 
+3 - 
+4 - 
+5 - extruder heater control
+6 - a
+7 - a
+8 - z
+9 - z
+10 - y
+11 - y
+12 - x
+13 - x
+
+analog
+0 - thermister
+1 - 
+2 - 
+3 - 
+4 - i2c
+5 - i2c
 ************************************************/
 
 /*-------------------
@@ -25,26 +68,37 @@ const char firmware_name[] = {'u','n','o',' ','e','m','u','l','a','t','i','o','n
 const char tool_name[] = {'e','m','u','l','a','t','e','d',' ','t','o','o','l','\0'};
 #define tool_name_size 14
 
-//setup tool position
+//setup tool data
 int32_t tool_x = 0;
 int32_t tool_y = 0;
 int32_t tool_z = 0;
+int32_t tool_a = 0;
+
+int extruder_temp = 0;
+int extruder_temp_target = 0;
 
 //create handlers for steppers
 stepper_handle stepper_x(13,12);
 stepper_handle stepper_y(11,10);
 stepper_handle stepper_z(9,8);
+stepper_handle stepper_a(7,6);
 
 //statuses
 boolean is_busy = false;
 boolean need_halt = false;
 
+//acceleration constants
+const float accleration_factor = 0.000005;
+const float max_step_delay = 1/2000;
+
 void setup(){
-  //Serial.begin(115200);
-  Serial.begin(460800);
+  Serial.begin(115200);
+  //Serial.begin(921600);
   /*uint8_t lol[]={0x85,0x00,0xDB,0x00,0xE7};
   Serial.write(crc8( lol, 0x05));
   pinMode(13,OUTPUT);*/
+  pinMode(5,OUTPUT);
+  pinMode(6,OUTPUT);
 };
 
 void loop(){
@@ -55,7 +109,7 @@ void loop(){
   
   //check serial buffer for commands, varify them, sort them, append them
   //while(Serial.available()){
-    check_s_buffer();
+    update_state();
   //};
   //buffer not implimented
   //check query_buffer for commands that need to be handled immidiately

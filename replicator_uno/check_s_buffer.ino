@@ -3,22 +3,21 @@ check the serial buffer for info
 --------------------------*/
 
 void check_s_buffer(){
+  boolean is_errornous = false;
+  
   if(Serial.available()){
     if(Serial.read() == 0xD5){
-      while(!Serial.available()){ //wait for next byte to send
-      }
+      wait_packet();//wait for next byte to send
 
       uint8_t _size = Serial.read(); //find packet size in packet
       uint8_t _payload[_size];
 
       for(int i = 0; i < _size; i++){ //read payload according to size
-        while(!Serial.available()){
-        }
+        wait_packet();
         _payload[i] = Serial.read();
       };
 
-      while(!Serial.available()){ //wait for next set of information
-      }
+      wait_packet();//wait for next set of information
 
       if(crc8(_payload, _size) == Serial.read()){ //compare checksum to the current packet
         if(_payload[0] < 128){ //handles query commands
@@ -47,11 +46,10 @@ void check_s_buffer(){
       };
 
       //send_packet( ha,3 );
-    }
+    /*}
     else{
-      uint8_t _resp[] = {
-        0x80};
-      send_packet( _resp,1 );
+      uint8_t _resp[] = {0x80};
+      send_packet( _resp,1 );*/
     };
   };
 };
