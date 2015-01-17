@@ -178,7 +178,7 @@ void dispatch_query (command_holder _com) {
       send_packet( _resp,22 );
       break;
     };
-    case (0x19):{
+    case (0x19):{ //build end notification
       uint8_t _resp[] = {0x81};
       send_packet( _resp,1 );
       break;
@@ -190,3 +190,4 @@ void dispatch_query (command_holder _com) {
     };
   };
 };
+

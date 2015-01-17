@@ -10,6 +10,7 @@ void update_extruder_temperature(){
     analogWrite(5,255);
   }
   else{
-    analogWrite(5,150);
+    analogWrite(5,120);
   };
 };
+

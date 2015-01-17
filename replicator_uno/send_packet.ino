@@ -26,4 +26,6 @@ void send_packet(uint8_t _payload[], uint8_t _size){
   _data[2 + _size] = crc8(_payload,_size);
   
   Serial.write(_data, 3 + _size);
+  Serial.flush();
 };
+

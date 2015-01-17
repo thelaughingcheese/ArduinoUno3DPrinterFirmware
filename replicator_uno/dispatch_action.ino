@@ -84,6 +84,7 @@ void dispatch_action (command_holder _com) {
       tool_x = (int32_t)_xpos;
       tool_y = (int32_t)_ypos;
       tool_z = (int32_t)_zpos;
+      tool_a = (int32_t)_apos;
       
       uint8_t _resp[] = {0x81};
       send_packet( _resp,1 );
@@ -170,39 +171,57 @@ void dispatch_action (command_holder _com) {
       _motion_flags = _com.load[25];
       
       //proccess relative data
-      /*uint8_t _t_mf = _motion_flags;
-      
-      if(_t_mf << 7 >> 7 == 1){
+      uint8_t _t_mf = _motion_flags << 7;
+      if((_t_mf >> 7) == 1){
         _xpos = (uint32_t)((int32_t)_xpos + tool_x);
       };
       
-      _t_mf = _motion_flags;
-      if(_t_mf << 6 >> 7 == 1){
+      _t_mf = _motion_flags << 6;
+      if((_t_mf >> 7) == 1){
         _ypos = (uint32_t)((int32_t)_ypos + tool_y);
       };
       
-      _t_mf = _motion_flags;
-      if(_t_mf << 5 >> 7 == 1){
+      _t_mf = _motion_flags << 5;
+      if((_t_mf >> 7) == 1){
         _zpos = (uint32_t)((int32_t)_zpos + tool_z);
-      };*/
+      };
       
-      
+      _t_mf = _motion_flags << 4;
+      if((_t_mf >> 7) == 1){
+        _apos = (uint32_t)((int32_t)_apos + tool_a);
+      };
       
       //respond to host software
       uint8_t _resp[] = {0x81};
       send_packet( _resp,1 );
       
       //cast and pass data to move tool head
-      move_tool_abs((int32_t)_xpos, (int32_t)_ypos, (int32_t)_zpos,(int32_t)_apos + tool_a, _del);
+      move_tool_abs((int32_t)_xpos, (int32_t)_ypos, (int32_t)_zpos,(int32_t)_apos, _del);
       
       break;
     };
-    case(0x83):{  //Find axis Minimums, just retruns success
+    case(0x83):{  //Find axis Minimums, decrease axis directions until endstops are hit for the requested axes
+      uint8_t _axis_flags = 0; // _ _ _ B A Z Y X
+      uint32_t _feed_rate = 0;
+      uint16_t _timeout = 0;
+      
+      _axis_flags = _com.load[1];
+      
+      for(int i = 0; i < 4;i++){
+          uint32_t _tempz = _com.load[i + 2];
+          _feed_rate = _feed_rate + (_tempz << (8 * i));
+      };
+      
+      for(int i = 0; i < 2;i++){
+          uint32_t _tempz = _com.load[i + 6];
+          _timeout = _timeout + (_tempz << (8 * i));
+      };
+      
       uint8_t _resp[] = {0x81};
       send_packet( _resp,1 );
       break;
     };
-    case(0x90):{  //Recall home position from eeprom, just retruns success
+    case(0x90):{  //Recall home position from eeprom, just retruns success, supposed to find coords in eeprom and make the current position that coordinate
       uint8_t _resp[] = {0x81};
       send_packet( _resp,1 );
       break;
@@ -219,3 +238,4 @@ void dispatch_action (command_holder _com) {
     };
   };
 };
+

@@ -20,3 +20,4 @@ uint8_t crc8( uint8_t addr[], uint8_t len){ //code 'stolen' from http://www.ardu
 	}
 	return crc;
 } 
+

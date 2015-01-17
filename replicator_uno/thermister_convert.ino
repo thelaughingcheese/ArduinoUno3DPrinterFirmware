@@ -25,6 +25,15 @@ short temptable[NUMTEMPS][2] = {
   {955, 34},
   {1008, 2}
 };
+/*
+int thermister_convert(int RawADC) {
+  float Temp;
+  // See http://en.wikipedia.org/wiki/Thermistor for explanation of formula
+  Temp = log(((10240000/RawADC) - 10000));
+  Temp = 1 / (0.001129148 + (0.000234125 * Temp) + (0.0000000876741 * Temp * Temp * Temp));
+  Temp = Temp - 273.15;           // Convert Kelvin to Celcius
+  return round(Temp);
+}*/
 
 int thermister_convert(int rawtemp) {
    int current_celsius = 0;
@@ -51,3 +60,4 @@ int thermister_convert(int rawtemp) {
 
    return current_celsius;
 }
+
